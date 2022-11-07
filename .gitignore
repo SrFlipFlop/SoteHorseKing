@@ -130,3 +130,7 @@ dmypy.json
 
 #Disable Apache Airflow logs
 logs/*
+
+#Configuration SSH keys
+config/id_rsa*
+config/*.pub

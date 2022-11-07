@@ -23,6 +23,7 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    - ./results:/home/airflow/results
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -234,22 +235,10 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
-  openssh-server:
-    image: lscr.io/linuxserver/openssh-server:latest
-    container_name: openssh-server
-    hostname: openssh-server #optional
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-      - SUDO_ACCESS=true #optional
-      - PASSWORD_ACCESS=true #optional
-      - USER_PASSWORD=password #optional
-      - USER_NAME=linuxserver.io #optional
-    #volumes:
-    #  - /path/to/appdata/config:/config
+  ubuntu:
+    build: .
     ports:
-      - 2222:2222
+      - 22:22
     restart: unless-stopped
 
 volumes:
