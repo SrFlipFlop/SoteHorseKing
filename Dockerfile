@@ -12,7 +12,7 @@ WORKDIR /home/ubuntu
 
 COPY ./config ./config
 
-RUN mkdir ./.ssh/ && cat ./config/id_rsa.pub > ./.ssh/authorized_keys && rm ./config/
+RUN mkdir ./.ssh/ && cat ./config/id_rsa.pub > ./.ssh/authorized_keys && rm -rf ./config/
 
 EXPOSE 22
 
