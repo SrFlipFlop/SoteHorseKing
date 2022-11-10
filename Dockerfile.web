@@ -1,0 +1,27 @@
+FROM kalilinux/kali-rolling
+
+WORKDIR /root
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt -y update && apt -y dist-upgrade && apt -y autoremove && apt clean
+
+## General
+RUN apt -y install python3-pip golang 
+RUN apt -y install nmap wordlists
+#RUN apt -y install curl wget vim git net-tools whois netcat-traditional pciutils usbutils
+#git clone https://github.com/dariusztytko/vhosts-sieve.git
+
+## Directory enumeration
+RUN apt -y install dirb gobuster ffuf
+
+## Vulnerability scanner
+RUN apt -y install nikto nuclei whatweb
+
+## CMS scanner
+RUN apt -y install wpscan cmseek
+
+## TLS/SSL scanner
+RUN apt -y install testssl.sh sslscan
+
+ENTRYPOINT ["/bin/bash"]

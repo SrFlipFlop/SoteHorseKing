@@ -237,7 +237,10 @@ services:
         condition: service_completed_successfully
 
   ubuntu:
-    build: .
+    #build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.ubuntu
     ports:
       - 22:22
     restart: unless-stopped
