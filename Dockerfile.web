@@ -7,10 +7,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt -y update && apt -y dist-upgrade && apt -y autoremove && apt clean
 
 ## General
-RUN apt -y install python3-pip golang 
-RUN apt -y install nmap wordlists
-#RUN apt -y install curl wget vim git net-tools whois netcat-traditional pciutils usbutils
-#git clone https://github.com/dariusztytko/vhosts-sieve.git
+RUN apt -y install python3-pip golang git
+RUN apt -y install openssh-server  nmap wordlists
 
 ## Directory enumeration
 RUN apt -y install dirb gobuster ffuf
@@ -23,5 +21,20 @@ RUN apt -y install wpscan cmseek
 
 ## TLS/SSL scanner
 RUN apt -y install testssl.sh sslscan
+
+# Install non-package tools
+WORKDIR /opt
+
+RUN git clone https://github.com/dariusztytko/vhosts-sieve.git && \
+    pip3 install -r vhosts-sieve/requirements.txt && \
+    chmod +x vhosts-sieve/vhosts-sieve.py && \
+    ln -s /opt/vhosts-sieve/vhosts-sieve.py /usr/local/bin/vhosts-sieve
+
+RUN go install github.com/projectdiscovery/katana/cmd/katana@latest
+
+## Configure SSH service with public key
+COPY ./config ./config
+RUN mkdir -p ./.ssh/ && cat ./config/id_rsa.pub > ./.ssh/authorized_keys && rm -rf ./config/
+EXPOSE 22
 
 ENTRYPOINT ["/bin/bash"]
