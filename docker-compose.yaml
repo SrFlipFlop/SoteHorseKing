@@ -236,13 +236,22 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
-  ubuntu:
+  #ubuntu:
     #build: .
+    #build:
+      #context: .
+      #dockerfile: Dockerfile.ubuntu
+    #ports:
+    #  - 22:22
+    #restart: unless-stopped
+
+  web-tools:
     build:
       context: .
-      dockerfile: Dockerfile.ubuntu
-    ports:
-      - 22:22
+      dockerfile: Dockerfile.web
+    tty: true
+    volumes:
+    - ./results:/root/results
     restart: unless-stopped
 
 volumes:

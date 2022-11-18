@@ -8,7 +8,7 @@ RUN apt -y update && apt -y dist-upgrade && apt -y autoremove && apt clean
 
 ## General
 RUN apt -y install python3-pip golang git
-RUN apt -y install openssh-server  nmap wordlists
+RUN apt -y install openssh-server nmap wordlists seclists
 
 ## Directory enumeration
 RUN apt -y install dirb gobuster ffuf
@@ -30,11 +30,15 @@ RUN git clone https://github.com/dariusztytko/vhosts-sieve.git && \
     chmod +x vhosts-sieve/vhosts-sieve.py && \
     ln -s /opt/vhosts-sieve/vhosts-sieve.py /usr/local/bin/vhosts-sieve
 
-RUN go install github.com/projectdiscovery/katana/cmd/katana@latest
+RUN go install github.com/projectdiscovery/katana/cmd/katana@latest && \
+    ln -s /root/go/bin/katana /usr/local/bin/
+
+WORKDIR /root
 
 ## Configure SSH service with public key
 COPY ./config ./config
-RUN mkdir -p ./.ssh/ && cat ./config/id_rsa.pub > ./.ssh/authorized_keys && rm -rf ./config/
+RUN mkdir -p ./.ssh/ && cat ./config/id_rsa.pub > ./.ssh/authorized_keys && rm -rf ./config/ && \
+    service ssh start
 EXPOSE 22
 
 ENTRYPOINT ["/bin/bash"]
