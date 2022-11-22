@@ -37,8 +37,8 @@ WORKDIR /root
 
 ## Configure SSH service with public key
 COPY ./config ./config
-RUN mkdir -p ./.ssh/ && cat ./config/id_rsa.pub > ./.ssh/authorized_keys && rm -rf ./config/ && \
-    service ssh start
+RUN mkdir -p ./.ssh/ && cat ./config/id_rsa.pub > ./.ssh/authorized_keys && rm -rf ./config/ && mkdir /var/run/sshd
+
 EXPOSE 22
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/usr/sbin/sshd", "-D"]
