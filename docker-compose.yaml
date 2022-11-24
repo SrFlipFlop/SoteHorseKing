@@ -251,7 +251,7 @@ services:
       dockerfile: Dockerfile.web
     tty: true
     volumes:
-    - ./results:/root/results
+    - ./results:/opt/airflow/results
     restart: unless-stopped
 
 volumes:

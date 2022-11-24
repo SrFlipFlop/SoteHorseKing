@@ -14,7 +14,7 @@ def web_normal():
     @task()
     def find_servers():
         nmap = Nmap()
-        nmap.find_web_servers('127.0.0.1', '22,80,443', '/root/results')
+        nmap.find_web_servers(host='192.168.0.18', ports='22,80,443', path='/opt/airflow/results')
 
     @task()
     def dir_enum():
@@ -25,7 +25,5 @@ def web_normal():
         pass
 
     find_servers()
-    dir_enum()
-    dir_enum_extension()
 
 web_normal()
