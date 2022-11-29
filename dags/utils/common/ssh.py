@@ -36,5 +36,19 @@ class SecureShell(metaclass=SecureShellSingleton):
             })
         return out
 
+    def execute_wait_commands(self, commands=[]):
+        out = []
+        for cmd in commands:
+            ssh_stdin, ssh_stdout, ssh_stderr = self.ssh.exec_command(cmd)
+            exit_status = ssh_stdout.channel.recv_exit_status()
+            out.append({
+                'cmd': cmd,
+                'status': exit_status,
+                'stdin': ssh_stdin,
+                'stdout': ssh_stdout,
+                'stderr': ssh_stderr,
+            })
+        return out
+
     def close(self):
         self.ssh.close()
