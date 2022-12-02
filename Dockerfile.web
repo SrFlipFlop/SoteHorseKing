@@ -13,6 +13,9 @@ RUN apt -y install openssh-server nmap wordlists seclists
 ## Directory enumeration
 RUN apt -y install dirb gobuster ffuf
 
+## Technology scanner
+RUN pip3 install wappy
+
 ## Vulnerability scanner
 RUN apt -y install nikto nuclei whatweb
 
