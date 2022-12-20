@@ -10,3 +10,13 @@ class Nuclei:
     def nuclei_default(self, url):
         path_out = join(self.results_path, 'default.nuclei')
         stdin, stdout, stderr = self.ssh.execute_command(f'nuclei -fr -o {path_out} -u {url}')
+
+    #TODO
+    def nuclei_new_templates(self, url):
+        path_out = join(self.results_path, 'new.nuclei')
+        stdin, stdout, stderr = self.ssh.execute_command(f'nuclei -nt -fr -o {path_out} -u {url}')
+    
+    #TODO
+    def nuclei_cve(self, url):
+        path_out = join(self.results_path, 'vulnerabilities.nuclei')
+        stdin, stdout, stderr = self.ssh.execute_command(f'nuclei -t cves -t vulnerabilities -fr -o {path_out} -u {url}')
