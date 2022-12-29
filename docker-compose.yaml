@@ -23,7 +23,8 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
-    - ./results:/opt/airflow/results
+    #- ./results:/opt/airflow/results
+    - ./results:/opt/pentest/results
     - ./config:/opt/airflow/config
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
@@ -251,7 +252,8 @@ services:
       dockerfile: Dockerfile.web
     tty: true
     volumes:
-    - ./results:/opt/airflow/results
+    #- ./results:/opt/airflow/results
+    - ./results:/opt/pentest/results
     restart: unless-stopped
 
 volumes:
