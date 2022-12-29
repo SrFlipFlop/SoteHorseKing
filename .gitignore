@@ -134,3 +134,5 @@ logs/*
 #Configuration SSH keys
 config/id_rsa*
 config/*.pub
+
+results/*

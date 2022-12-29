@@ -7,4 +7,4 @@ class Test:
     def test(self):
         ssh = SecureShell('web-tools', 'root', '/opt/airflow/config/id_rsa')
         print(id(ssh))
-        ssh.execute(['sleep 30'])
+        ssh.execute_command('sleep 30')

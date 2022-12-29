@@ -1,20 +1,26 @@
+from time import sleep
 from datetime import datetime
 from airflow.decorators import dag, task
 
 from utils.web.nmap import Nmap
 
 @dag(
-    schedule=None,
-    start_date=datetime(2021, 1, 1),
     catchup=False,
+    schedule=None,
+    schedule_interval=None,
+    render_template_as_native_obj=True,
+    dag_id='Default_web_application_pentest',
+    start_date=datetime(2023, 1, 1),
     tags=['web', 'normal'],
+    params={
+        'url': 'https://default.test',
+        'name': f'{datetime.now().strftime("%d-%m-%Y")}_default',
+    },
 )
-
-def web_normal():
+def pentest():
     @task()
     def find_servers():
-        nmap = Nmap()
-        nmap.find_web_servers(host='192.168.0.18', ports='22,80,443', path='/opt/airflow/results')
+        pass
 
     @task()
     def dir_enum():
@@ -26,4 +32,4 @@ def web_normal():
 
     find_servers()
 
-web_normal()
+pentest()
