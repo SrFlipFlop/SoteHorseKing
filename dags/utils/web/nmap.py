@@ -1,8 +1,9 @@
 from utils.common.ssh import SecureShell
 
+from json import dump
 from re import findall
 from os.path import join
-from json import dump
+from urllib.parse import urlparse
 
 class Nmap:
     def __init__(self, results):
@@ -97,25 +98,42 @@ class Nmap:
             'http-waf-fingerprint.nse',
             'http-webdav-scan.nse'
         ]
-        
-    def nmap_web_fast(self, host, ports):
+
+    #Run fast nmap for default ports. Return the path of the results
+    def run_web_fast(self, host: str, ports=[]) -> dict:
+        if 'http' in host:
+            host = urlparse(host).netloc
+
         if ports:
-            scan_ports = ','.join(ports)
+            scan_ports = ','.join(map(lambda x: str(x), ports))
         else:
             scan_ports = ','.join(self.common_web_ports)
 
-        normal_result = join(self.results_path, 'nmap_web_fast.nmap')
-        out = self.ssh.execute_wait_command(f'nmap -sT -sV -T4 -oN {normal_result} -oG - -p {scan_ports} {host}')
-        return ''.join(map(str, out['stdout'].readlines()))
- 
-    def nmap_web_scripts(self, host, ports):
-        if not ports:
-            ports = ','.join(self.default_web_ports)
+        normal_result = join(self.results_path, 'nmap_web_fast.txt')
+        grep_results = join(self.results_path, 'nmap_web_fast.gnmap')
+        out = self.ssh.execute_wait_command(f'nmap -sT -sV -T4 -oN {normal_result} -oG {grep_results} -p {scan_ports} {host}')
+        print(f'[+] Execudet web_fast - {out} - {normal_result} - {grep_results}')
+        return {'gnmap': grep_results, 'nmap': normal_result}
+
+    #Run slow nmap with multiple scripts. Return the path of the result
+    def run_web_scripts(self, host: str, ports=[]) -> dict:
+        if 'http' in host:
+            host = urlparse(host).netloc
+
+        if ports:
+            scan_ports = ','.join(map(lambda x: str(x), ports))
+        else:
+            scan_ports = ','.join(self.default_web_ports)
 
         normal_result = join(self.results_path, 'nmap_web_scripts.nmap')
-        stdin, stdout, stderr = self.ssh.execute_command(f'nmap -sT -sV --script {",".join(self.web_scripts)} -oN {normal_result} -p {ports} {host}')
+        out = self.ssh.execute_wait_command(f'nmap -sT -sV --script {",".join(self.web_scripts)} -oN {normal_result} -p {scan_ports} {host}')
+        return {'nmap': normal_result}
 
-    def analyze_webservers(self, gnmap):
+    #Analyze the gnmap file to find open web applications in different ports
+    def analyze_webservers(self, gnmap_path: str) -> None:
+        with open(gnmap_path, 'r') as f:
+            gnmap = f.read()
+
         res1 = findall(r'Host: ([0-9a-zA-Z_\s\-\.]+) \(([0-9a-zA-Z_\s\-\.]+)?\)\sPorts:', gnmap)
         res2 = findall(r'([0-9]+)/open/tcp//http([0-9a-zA-Z_\s\-\.\(\)]+)?//([0-9a-zA-Z_\s\-\.\(\)]+)/', gnmap)
         
@@ -130,7 +148,7 @@ class Nmap:
                 'cvss': 0,
                 'result': f'It has been found the following HTTP servers in the remote host:\n{webs}',
             }
-            
+
             with open(join(self.results_path, 'web_servers.results'), 'w') as f:
                 dump(results, f)        
     
