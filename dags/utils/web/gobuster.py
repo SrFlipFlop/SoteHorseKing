@@ -21,7 +21,7 @@ class Gobuster:
         if not wordlist:
             wordlist = self.default_wordlist
         
-        path_out = join(self.results_path, 'normal_direnum.gobuster')
+        path_out = join(self.results_path, 'gobuster_direnum.txt')
         out = self.ssh.execute_wait_command(f'gobuster dir -k -e -t {threads} --random-agent -o {path_out} -w {wordlist} -u {url}')
         return path_out
 
@@ -30,7 +30,7 @@ class Gobuster:
         if not wordlist:
             wordlist = self.default_wordlist
         
-        path_out = join(self.results_path, 'extensions_direnum.gobuster')
+        path_out = join(self.results_path, 'gobuster_extensions_direnum.txt')
         out = self.ssh.execute_wait_command(f'gobuster dir -k -e -t {threads} --random-agent -x {",".join(extensions)} -o {path_out} -w {wordlist} -u {url}')
         return path_out
 
@@ -43,7 +43,7 @@ class Gobuster:
         if 'http' in domain:
             domain = urlparse(domain).netloc
 
-        path_out = join(self.results_path, 'gobuster_tech.txt')
+        path_out = join(self.results_path, 'gobuster_tech_direnum.txt')
         extensions = ','.join(self.tech_wordlist[tech.lower()]['extensions'] + self.default_extensions)
         wordlist = ' '.join(self.tech_wordlist[tech.lower()]['wordlist'])
         commands = (
@@ -56,7 +56,7 @@ class Gobuster:
         
     #Launch an vhost bruteforce enumeration. Return the path of the scan result.
     def run_vhost_enum(self, url: str) -> str:
-        path_out = join(self.results_path, 'vhost.gobuster')
+        path_out = join(self.results_path, 'gobuster_vhostenum.txt')
         out = self.ssh.execute_wait_command(f'gobuster vhost --append-domain -o {path_out} -w /usr/share/nmap/nselib/data/vhosts-full.lst -u {url}')
         return path_out
 
