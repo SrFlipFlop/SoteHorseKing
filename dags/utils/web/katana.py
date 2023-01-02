@@ -3,13 +3,14 @@ from utils.common.ssh import SecureShell
 from os.path import join
 
 class Katana:
-    def __init__(self):
+    def __init__(self, results: str) -> None:
         self.ssh = SecureShell('web-tools', 'root', '/opt/airflow/config/id_rsa')
+        self.results_path = results
 
-    def crawl_full(self, url, path):
-        path_out = join(path, 'full-crawler-depth5.katana')
+    def run_crawl_full(self, url: str) -> str:
+        path_out = join(self.results_path, 'katana-crawler-depth5.txt')
         out = self.ssh.execute_wait_command(f'katana -d 5 -jc -kf all -o {path_out} -u {url}')
-        return ''.join(map(str, out['stdout'].readlines()))
+        return path_out
 
     #TODO
     def analyze_lfi(self, data):

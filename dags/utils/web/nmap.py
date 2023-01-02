@@ -6,7 +6,7 @@ from os.path import join
 from urllib.parse import urlparse
 
 class Nmap:
-    def __init__(self, results):
+    def __init__(self, results: str) -> None:
         self.ssh = SecureShell('web-tools', 'root', '/opt/airflow/config/id_rsa')
         self.results_path = results
         self.default_web_ports = ['80', '443', '8080', '8443']
