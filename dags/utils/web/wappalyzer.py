@@ -1,19 +1,22 @@
 from utils.common.ssh import SecureShell
 
 from os.path import join
-from json import loads, dump
+from json import load, dump
 
 class Wappalyzer:
-    def __init__(self, results):
+    def __init__(self, results: str) -> None:
         self.ssh = SecureShell('web-tools', 'root', '/opt/airflow/config/id_rsa')
         self.results_path = results
 
-    def find_technologies(self, url):
+    def run_find_technologies(self, url: str) -> str:
         path_out = join(self.results_path, 'technologies.wappy')
         out = self.ssh.execute_wait_command(f'wappy -j -kbc {url} | tee {path_out}')
-        return loads(''.join(map(str, out['stdout'].readlines())))
+        return path_out
         
-    def analyze_technologies(self, out):
+    def analyze_technologies(self, path: str) -> list:
+        with open(path, 'r') as f:
+            out = load(f)
+
         technologies = []
         lines = []
         for tech in out:
