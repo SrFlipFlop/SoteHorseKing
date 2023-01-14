@@ -1,16 +1,29 @@
 from time import sleep
+from os.path import join
 from datetime import datetime
 from airflow.decorators import dag, task
 
 from utils.web.nmap import Nmap
+from utils.web.dirb import Dirb
+from utils.web.nikto import Nikto
+from utils.web.wpscan import WPScan
+from utils.web.cmseek import CMSeek
+from utils.web.nuclei import Nuclei
+from utils.web.katana import Katana
+from utils.web.testssl import Testssl
+from utils.web.sslscan import Sslscan
+from utils.web.whatweb import WhatWeb
+from utils.web.gobuster import Gobuster
+from utils.web.jsanalyzer import JSAnalyzer
+from utils.web.wappalyzer import Wappalyzer
+from utils.web.vhostssieve import VhostSieve
 
 @dag(
     catchup=False,
     schedule=None,
-    schedule_interval=None,
     render_template_as_native_obj=True,
     dag_id='Default_web_application_pentest',
-    start_date=datetime(2023, 1, 1),
+    start_date=datetime(2022, 1, 1),
     tags=['web', 'normal'],
     params={
         'url': 'https://default.test',
@@ -19,17 +32,91 @@ from utils.web.nmap import Nmap
 )
 def pentest():
     @task()
-    def find_servers():
-        pass
+    def wait(delay=0, *args, **kwargs):
+        if delay:
+            sleep(delay)
 
     @task()
-    def dir_enum():
-        pass
+    def find_servers(url: str, path: str) -> None:
+        nmap = Nmap(path) 
+        nmap.run_web_fast(url, [80,443])
 
     @task()
-    def dir_enum_extension():
-        pass
+    def enum_vhosts(url: str, path: str) -> None:
+        gobuster = Gobuster(path)
+        gobuster.run_vhost_enum(url=url)
 
-    find_servers()
+        sieve = VhostSieve(path)
+        sieve.run_vhost_enum(url)
+
+    @task()
+    def check_web_technology(url: str, path: str) -> None:
+        wappy = Wappalyzer(path)
+        wappy.run_find_technologies(url)
+
+        whatweb = WhatWeb(path)
+        whatweb.run_find_technologies(url)
+        whatweb.run_find_technologies_aggressive(url)
+
+    @task()
+    def check_cms(url: str, path: str) -> None:
+        seek = CMSeek(path)
+        seek.run_cmseek_default(url)
+
+    @task()
+    def crawler(url: str, path: str) -> None:
+        katana = Katana(path)
+        katana.run_crawl_full(url)
+
+    @task()
+    def javascript(url: str, path: str) -> None:
+        js = JSAnalyzer(path)
+        js.reun_get_javascript(url)
+
+    @task()
+    def dir_enum_normal(url: str, path: str) -> None:
+        gobuster = Gobuster(path)
+        gobuster.run_dir_enum(url=url)
+
+    @task()
+    def dir_enum_extensions(url: str, path: str) -> None:
+        dirb = Dirb(path)
+        dirb.run_dir_enum_extension(url=url, extensions=['php', 'txt'])
+
+    @task()
+    def vulnerability_scanner(url: str, path: str) -> None:
+        nuclei = Nuclei(path)
+        nuclei.run_nuclei_default(url)
+
+        nikto = Nikto(path)
+        nikto.run_nikto_default(url)
+
+    @task()
+    def vulnerability_cms_scanner(url: str, path: str) -> None:
+        wpscan = WPScan(path)
+        wpscan.wpscan_default(url)
+
+    @task()
+    def server_tls(url: str, path: str) -> None:
+        testssl = Testssl(path)
+        testssl.run_testssl_default(url)
+
+        sslscan = Sslscan(path)
+        sslscan.run_sslscan_default(url)
+
+    URL = '{{params.url}}'
+    PROJECT_PATH = join('/opt/pentest/results', '{{params.name}}')
+    find_servers(URL, PROJECT_PATH)
+    #enum_vhosts(URL, PROJECT_PATH)
+    #check_web_technology(URL, PROJECT_PATH)
+    #check_cms(URL, PROJECT_PATH)
+    #crawler(URL, PROJECT_PATH)
+    #javascript(URL, PROJECT_PATH)
+    #dir_enum_normal(URL, PROJECT_PATH)
+    #dir_enum_extensions(URL, PROJECT_PATH)
+    #vulnerability_scanner(URL, PROJECT_PATH)
+    #vulnerability_cms_scanner(URL, PROJECT_PATH)
+    #server_tls(URL, PROJECT_PATH)
+
 
 pentest()
