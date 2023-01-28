@@ -101,9 +101,7 @@ class Nmap:
 
     #Run fast nmap for default ports. Return the path of the results
     def run_web_fast(self, host: str, ports=[]) -> dict:
-        if 'http' in host:
-            host = urlparse(host).netloc
-
+        host = self._clean_host(host)
         if ports:
             scan_ports = ','.join(map(lambda x: str(x), ports))
         else:
@@ -117,9 +115,7 @@ class Nmap:
 
     #Run slow nmap with multiple scripts. Return the path of the result
     def run_web_scripts(self, host: str, ports=[]) -> dict:
-        if 'http' in host:
-            host = urlparse(host).netloc
-
+        host = self._clean_host(host)
         if ports:
             scan_ports = ','.join(map(lambda x: str(x), ports))
         else:
@@ -152,3 +148,9 @@ class Nmap:
             with open(join(self.results_path, 'web_servers.results'), 'w') as f:
                 dump(results, f)        
     
+    def _clean_host(self, host: str) -> str:
+        if 'http' in host:
+            host = urlparse(host).netloc
+        if ':' in host:
+            host = host.split(':')[0]
+        return host
