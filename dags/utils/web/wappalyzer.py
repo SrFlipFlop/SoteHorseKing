@@ -9,7 +9,7 @@ class Wappalyzer:
         self.results_path = results
 
     def run_find_technologies(self, url: str) -> str:
-        path_out = join(self.results_path, 'technologies.wappy')
+        path_out = join(self.results_path, 'technologies.json')
         out = self.ssh.execute_wait_command(f'wappy -j -kbc {url} | tee {path_out}')
         return path_out
         

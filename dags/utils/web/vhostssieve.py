@@ -13,7 +13,7 @@ class VhostSieve:
         if 'http' in domain:
             domain = urlparse(domain).netloc
 
-        path_out = join(self.results_path, 'vhost.vhostsieve')
+        path_out = join(self.results_path, 'vhostsieve.txt')
         commands = (
             f'sed "s/$/.{domain}/" /usr/share/nmap/nselib/data/vhosts-full.lst > /tmp/vhost_domains_{domain}.txt',
             f'vhosts-sieve -d /tmp/vhost_domains_{domain}.txt -o {path_out}',

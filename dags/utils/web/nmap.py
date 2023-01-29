@@ -121,7 +121,7 @@ class Nmap:
         else:
             scan_ports = ','.join(self.default_web_ports)
 
-        normal_result = join(self.results_path, 'nmap_web_scripts.nmap')
+        normal_result = join(self.results_path, 'nmap_web_scripts.txt')
         out = self.ssh.execute_wait_command(f'nmap -sT -sV --script {",".join(self.web_scripts)} -oN {normal_result} -p {scan_ports} {host}')
         return {'nmap': normal_result}
 
