@@ -118,18 +118,28 @@ def pentest():
 
     URL = '{{params.url}}'
     PROJECT_PATH = join('/opt/pentest/results', '{{params.name}}')
-    wait1 = create_results_dir(PROJECT_PATH)
-    wait2 = wait(5, wait1)
-    find_servers(URL, PROJECT_PATH, wait2)
-    #enum_vhosts(URL, PROJECT_PATH)
-    #check_web_technology(URL, PROJECT_PATH)
-    #check_cms(URL, PROJECT_PATH)
-    #crawler(URL, PROJECT_PATH)
-    #javascript(URL, PROJECT_PATH)
-    #dir_enum_normal(URL, PROJECT_PATH)
-    #dir_enum_extensions(URL, PROJECT_PATH)
-    #vulnerability_scanner(URL, PROJECT_PATH)
-    #vulnerability_cms_scanner(URL, PROJECT_PATH)
-    #server_tls(URL, PROJECT_PATH)
+    
+    step1 = create_results_dir(PROJECT_PATH)
+    wait1 = wait(5, step1)
+    
+    step2 = find_servers(URL, PROJECT_PATH, wait1)
+    step3 = enum_vhosts(URL, PROJECT_PATH, wait1)
+    step4 = check_web_technology(URL, PROJECT_PATH, wait1)
+    step5 = check_cms(URL, PROJECT_PATH, wait1)
+    wait2 = wait(5, [step2, step3, step4, step5])
+    
+    step6 = crawler(URL, PROJECT_PATH, wait2)
+    step7 = javascript(URL, PROJECT_PATH, wait2)
+    wait3 = wait(5, [step6, step7])
+    
+    step8 = dir_enum_normal(URL, PROJECT_PATH, wait3)
+    step9 = dir_enum_extensions(URL, PROJECT_PATH, wait3)
+    wait4 = wait(5, [step8, step9])
+
+    step10 = vulnerability_scanner(URL, PROJECT_PATH, wait4)
+    wait5 = wait(5, step10)
+
+    step11 = vulnerability_cms_scanner(URL, PROJECT_PATH, wait5)
+    step12 = server_tls(URL, PROJECT_PATH, wait5)
 
 pentest()
