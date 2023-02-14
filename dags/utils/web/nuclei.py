@@ -9,7 +9,7 @@ class Nuclei:
 
     #Launch the default nuclei scan. Return the results path
     def run_nuclei_default(self, url: str) -> str:
-        path_out = join(self.results_pgiath, 'nuclei_default.txt')
+        path_out = join(self.results_path, 'nuclei_default.txt')
         out = self.ssh.execute_wait_command(f'nuclei -fr -o {path_out} -u {url}')
         return path_out
 
