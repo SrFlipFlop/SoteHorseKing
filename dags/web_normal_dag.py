@@ -33,7 +33,7 @@ from utils.web.vhostssieve import VhostSieve
     },
 )
 def pentest():
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def create_results_dir(path):
         #Create results dir from SSH command
         #ssh = SecureShell('web-tools', 'root', '/opt/airflow/config/id_rsa')
@@ -43,17 +43,17 @@ def pentest():
         if not exists(path):
             mkdir(path)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def wait(delay=0, *args: list, **kwargs: dict):
         if delay:
             sleep(delay)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def find_servers(url: str, path: str, *args: list, **kwargs: dict) -> None:
         nmap = Nmap(path) 
         nmap.run_web_fast(url, ports=[80,3000,8080])
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def enum_vhosts(url: str, path: str, *args: list, **kwargs: dict) -> None:
         gobuster = Gobuster(path)
         gobuster.run_vhost_enum(url=url)
@@ -61,7 +61,7 @@ def pentest():
         sieve = VhostSieve(path)
         sieve.run_vhost_enum(url)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def check_web_technology(url: str, path: str, *args: list, **kwargs: dict) -> None:
         #wappy = Wappalyzer(path)
         #wappy.run_find_technologies(url)
@@ -70,32 +70,32 @@ def pentest():
         #whatweb.run_find_technologies(url)
         whatweb.run_find_technologies_aggressive(url)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def check_cms(url: str, path: str, *args: list, **kwargs: dict) -> None:
         seek = CMSeek(path)
         seek.run_cmseek_default(url)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def crawler(url: str, path: str, *args: list, **kwargs: dict) -> None:
         katana = Katana(path)
         katana.run_crawl_full(url)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def javascript(url: str, path: str, *args: list, **kwargs: dict) -> None:
         js = JSAnalyzer(path)
         js.reun_get_javascript(url)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def dir_enum_normal(url: str, path: str, *args: list, **kwargs: dict) -> None:
         gobuster = Gobuster(path)
         gobuster.run_dir_enum(url=url)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def dir_enum_extensions(url: str, path: str, *args: list, **kwargs: dict) -> None:
         dirb = Dirb(path)
         dirb.run_dir_enum_extension(url=url, extensions=['js', 'txt'])
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def vulnerability_scanner(url: str, path: str, *args: list, **kwargs: dict) -> None:
         nuclei = Nuclei(path)
         nuclei.run_nuclei_default(url)
@@ -103,12 +103,12 @@ def pentest():
         nikto = Nikto(path)
         nikto.run_nikto_default(url)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def vulnerability_cms_scanner(url: str, path: str, *args: list, **kwargs: dict) -> None:
         wpscan = WPScan(path)
         wpscan.wpscan_default(url)
 
-    @task(execution_timeout=timedelta(minutes=60))
+    @task(trigger_rule='all_done', execution_timeout=timedelta(minutes=60))
     def server_tls(url: str, path: str, *args: list, **kwargs: dict) -> None:
         testssl = Testssl(path)
         testssl.run_testssl_default(url)
