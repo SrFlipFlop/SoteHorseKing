@@ -6,8 +6,9 @@ class APKDownloader:
         self.credentials_path = None
         self.download_path = download
         self.results_path = results
+        self.apk_content_type = ['vnd.android.package-archive', 'java-archive', 'apk', 'zip']
 
-    def regular_download(self, url: str):
+    def regular_download(self, url: str) -> str:
         if not url.endswith('.apk'):
             raise SystemExit(f'[!] Error downloading APK ({url}) - Not ends with apk extension')
 
@@ -15,42 +16,39 @@ class APKDownloader:
         if res.status_code != 200:
             raise SystemExit(f'[!] Error downloading APK ({url}) - Status code {res.status_code}')
 
-        correct = False
-        for header in ['vnd.android.package-archive', 'java-archive', 'apk', 'zip']:
-            if header in res.headers['Content-Type']:
-                correct = True
-                break
-        if not correct:
+        if not self._check_apk(res.headers['Content-Type']):
             raise SystemExit(f'[!] Error downloading APK ({url}) - Download does not have the correct Content-Type')
 
-        with open(self.download_path, 'wb') as f:
-            for chunk in res.iter_content(chunk_size=1024): 
-                if chunk:
-                    f.write(chunk)
-                    f.flush()
+        self._store_apk(res)
         return self.download_path
         
-    def apkpure_download(self, package: str):
+    def apkpure_download(self, package: str) -> str:
         headers = default_headers()
         headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',})
         res = get(f'https://d.apkpure.com/b/APK/{package}?version=latest', headers=headers, stream=True)
         
-        correct = False
-        for header in ['vnd.android.package-archive', 'java-archive', 'apk', 'zip']:
-            if header in res.headers['Content-Type']:
-                correct = True
-                break
-        if not correct:
+        if not self._check_apk(res.headers['Content-Type']):
             raise SystemExit(f'[!] Error downloading APK ({package}) - Download does not have the correct Content-Type')
 
-        with open(self.download_path, 'wb') as f:
-            for chunk in res.iter_content(chunk_size=1024): 
-                if chunk:
-                    f.write(chunk)
-                    f.flush()
+        self._store_apk(res)
         return self.download_path
 
     def googleplay_download(self, package: str):
         if not self.credentials_path:
             raise SystemExit('[-] No GooglePlay key found')
         #TODO: https://github.com/ClaudiuGeorgiu/PlaystoreDownloader
+
+    def _check_apk(self, content_type: str) -> bool:
+        correct = False
+        for header in self.apk_content_type:
+            if header in content_type:
+                correct = True
+                break
+        return correct
+    
+    def _store_apk(self, response: object):
+        with open(self.download_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=1024): 
+                if chunk:
+                    f.write(chunk)
+                    f.flush()
