@@ -247,5 +247,14 @@ services:
     - ./results:/opt/pentest/results
     restart: unless-stopped
 
+  android-tools:
+    build:
+      context: .
+      dockerfile: Dockerfile.android
+    tty: true
+    volumes:
+      - ./results:/opt/pentest/results
+    restart: unless-stopped
+
 volumes:
   postgres-db-volume:

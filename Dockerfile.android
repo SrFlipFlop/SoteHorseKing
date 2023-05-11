@@ -1,0 +1,25 @@
+FROM ubuntu:latest
+
+RUN apt update -y && apt dist-upgrade -y && apt autoremove -y && apt clean
+
+# General
+RUN apt install -y python3 python3-pip git openssh-server sudo
+
+# Install non-package tools
+WORKDIR /opt
+
+RUN git clone https://github.com/ClaudiuGeorgiu/PlaystoreDownloader.git && cd PlaystoreDownloader && python3 -m pip install pipenv 
+
+RUN useradd -rm -d /home/security -s /bin/bash -g root -G sudo -u 1000 security
+RUN  echo 'security:security' | chpasswd
+
+# Configure SSH service with public key
+WORKDIR /home/security
+COPY ./config ./config
+RUN mkdir -p ./.ssh/ && cat ./config/id_rsa.pub > ./.ssh/authorized_keys && rm -rf ./config/ && mkdir /var/run/sshd
+
+EXPOSE 22
+
+RUN service ssh start
+
+CMD ["/usr/sbin/sshd","-D"]
