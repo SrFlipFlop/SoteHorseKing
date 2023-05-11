@@ -1,4 +1,8 @@
+from utils.common.ssh import SecureShell
+
+from json import load
 from requests import get
+from hashlib import sha256
 from requests.utils import default_headers
 
 class APKDownloader:
@@ -35,8 +39,24 @@ class APKDownloader:
 
     def googleplay_download(self, package: str):
         if not self.credentials_path:
-            raise SystemExit('[-] No GooglePlay key found')
-        #TODO: https://github.com/ClaudiuGeorgiu/PlaystoreDownloader
+            raise SystemExit('[-] No GooglePlay credentials')
+
+        with open(self.credentials_path, 'r') as f:
+            credentials = load(f)
+            raw = f.read()
+
+        hash = sha256(raw.encode('utf-8')).hexdigest()
+        for creds in credentials:
+            if not 'user' in creds  or 'password' in creds:
+                raise SystemExit(f'[-] No GooglePlay valid credentials {credentials}')
+
+        self.ssh = SecureShell('android-tools', 'root', '/opt/airflow/config/id_rsa')
+        self.ssh.execute_wait_commands([
+            f'echo \'{raw}\' > /tmp/{hash}.json',
+            f'pipenv run python3 -m playstoredownloader.cli -c /tmp/{hash}.json -o {self.download_path} "{package}"',
+            f'rm /tmp/{hash}.json'
+        ])
+        return self.download_path
 
     def _check_apk(self, content_type: str) -> bool:
         correct = False
