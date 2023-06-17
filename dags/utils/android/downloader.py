@@ -6,8 +6,8 @@ from hashlib import sha256
 from requests.utils import default_headers
 
 class APKDownloader:
-    def __init__(self, download: str, results: str):
-        self.credentials_path = None
+    def __init__(self, download: str, results: str, credentials=None):
+        self.credentials_path = credentials
         self.download_path = download
         self.results_path = results
         self.apk_content_type = ['vnd.android.package-archive', 'java-archive', 'apk', 'zip']
@@ -45,15 +45,21 @@ class APKDownloader:
             credentials = load(f)
             raw = f.read()
 
-        hash = sha256(raw.encode('utf-8')).hexdigest()
+        valid = False
         for creds in credentials:
-            if not 'user' in creds  or 'password' in creds:
-                raise SystemExit(f'[-] No GooglePlay valid credentials {credentials}')
+            user = creds.get('USERNAME')
+            passwd = creds.get('PASSWORD')
+            android = creds.get('ANDROID_ID')
+            valid = (not user or not passwd or not android)
 
+        if not valid:    
+            raise SystemExit(f'[-] No GooglePlay valid credentials {credentials}')
+
+        hash = sha256(raw.encode('utf-8')).hexdigest()
         self.ssh = SecureShell('android-tools', 'root', '/opt/airflow/config/id_rsa')
         self.ssh.execute_wait_commands([
             f'echo \'{raw}\' > /tmp/{hash}.json',
-            f'pipenv run python3 -m playstoredownloader.cli -c /tmp/{hash}.json -o {self.download_path} "{package}"',
+            f'cd /opt/PlaystoreDownloader && pipenv run python3 -m playstoredownloader.cli -c /tmp/{hash}.json -o {self.download_path} "{package}"',
             f'rm /tmp/{hash}.json'
         ])
         return self.download_path

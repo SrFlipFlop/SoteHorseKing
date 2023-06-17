@@ -4,12 +4,14 @@ RUN apt update -y && apt dist-upgrade -y && apt autoremove -y && apt clean
 
 # General
 RUN apt install -y python3 python3-pip git openssh-server sudo
+RUN python3 -m pip install pipenv
 
 # Install non-package tools
 WORKDIR /opt
 
-RUN git clone https://github.com/ClaudiuGeorgiu/PlaystoreDownloader.git && cd PlaystoreDownloader && python3 -m pip install pipenv 
+RUN git clone https://github.com/ClaudiuGeorgiu/PlaystoreDownloader.git && cd PlaystoreDownloader &&  pipenv install --deploy
 
+# Add user
 RUN useradd -rm -d /home/security -s /bin/bash -g root -G sudo -u 1000 security
 RUN  echo 'security:security' | chpasswd
 
